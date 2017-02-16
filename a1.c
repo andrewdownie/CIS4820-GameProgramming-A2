@@ -303,7 +303,7 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_x >= MAP_SIZE_X - 2){
-          printf("Outside game area!");
+          printf("Outside game area!\n");
           curPos_x = (MAP_SIZE_X - 2) * -1;
           curIndex_x = curPos_x;
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
@@ -315,7 +315,7 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_z >= MAP_SIZE_Z - 2){
-        printf("Outside game area!");
+        printf("Outside game area!\n");
         curPos_z = (MAP_SIZE_Z - 2) * -1;
         curIndex_z = curPos_z;
         currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
@@ -396,6 +396,8 @@ void draw2D() {
     GLfloat green[] = {0.0, 0.5, 0.0, MINIMAP_TRANSPARENCY};
     GLfloat blue[] = {0.0, 0.0, 0.5, MINIMAP_TRANSPARENCY};
     GLfloat red[] = {0.5, 0.0, 0.0, MINIMAP_TRANSPARENCY};
+    GLfloat white[] = {1, 1, 1, 1};
+    GLfloat black[] = {0.0, 0.0, 0.0, 1.0};
 
     ///
     ///     Mimimap variables 
@@ -409,11 +411,14 @@ void draw2D() {
     int x, z;
 
     float map_ratio;
+    float player_x, player_y, player_z;
+
+
+
 
 
     if(displayMap == 0){
-        map_ratio = 0;
-        //return;
+        return;
     }
     else if(displayMap == 1){
        map_ratio = MINIMAP_SIZE_RATIO; 
@@ -450,14 +455,25 @@ void draw2D() {
         startBottom = screenHeight / 2 - (pixelDim * (MAP_SIZE_Z - 1)) / 2;
     }
 
+    ///
+    /// Draw the player
+    ///
+    getViewPosition(&player_x, &player_y, &player_z);
+    player_x = player_x * -1;
+    player_z = player_z * -1;
 
+    player_z = MAP_SIZE_Z - player_z;
+
+    printf("%f %f\n", player_x, player_z);
+    set2Dcolour(black);
+    draw2Dbox(startLeft + round((player_x - 1) * pixelDim), startBottom + round((player_z - 1) * pixelDim), startLeft + round((player_x) * pixelDim), startBottom + round((player_z) * pixelDim));
+    //draw2Dbox(0, 0, 100, 100);
 
     ///
     /// Draw the map 
     ///
-    for(x = 0; x < MAP_SIZE_X - 1; x++){
-        for(z = 0; z < MAP_SIZE_Z - 1; z++){
-
+    for(z = 0; z < MAP_SIZE_Z - 1; z++){
+        for(x = 0; x < MAP_SIZE_X - 1; x++){
             curX = startLeft + pixelDim * x;
             curZ = startBottom + pixelDim * z;
 
@@ -470,6 +486,9 @@ void draw2D() {
             }
             else if(world[x][1][z] == PILLAR_COLOUR){
                 set2Dcolour(blue);
+            }
+            else if(world[x][1][z] == 5){
+                set2Dcolour(white);
             }
             else{
                 set2Dcolour(red);
