@@ -80,6 +80,10 @@
 /// Minimap settings
 ///
 #define MINIMAP_SIZE_RATIO 0.33f
+#define FULLMAP_SIZE_RATIO 1.0f 
+
+#define MINIMAP_TRANSPARENCY 1
+#define FULLMAP_TRANSPARENCY 0.6f
 
 
 
@@ -388,11 +392,10 @@ void draw2D() {
     ///
     ///     Color
     ///
-    GLfloat orange[] = {1.0, 0.5, 0.0, 1.0};
-    GLfloat green[] = {0.0, 0.5, 0.0, 1.0};
-    GLfloat black[] = {0.0, 0.0, 0.0, 1.0};
-    GLfloat blue[] = {0.0, 0.0, 0.5, 1.0};
-    GLfloat red[] = {0.5, 0.0, 0.0, 1.0};
+    GLfloat orange[] = {1.0, 0.5, 0.0, MINIMAP_TRANSPARENCY};
+    GLfloat green[] = {0.0, 0.5, 0.0, MINIMAP_TRANSPARENCY};
+    GLfloat blue[] = {0.0, 0.0, 0.5, MINIMAP_TRANSPARENCY};
+    GLfloat red[] = {0.5, 0.0, 0.0, MINIMAP_TRANSPARENCY};
 
     ///
     ///     Mimimap variables 
@@ -405,9 +408,31 @@ void draw2D() {
     int curX, curZ;
     int x, z;
 
+    float map_ratio;
 
-    widthRatio = ceil(screenWidth / MAP_SIZE_X * MINIMAP_SIZE_RATIO);
-    heightRatio = ceil(screenHeight / MAP_SIZE_Z * MINIMAP_SIZE_RATIO);
+
+    if(displayMap == 0){
+        map_ratio = 0;
+        //return;
+    }
+    else if(displayMap == 1){
+       map_ratio = MINIMAP_SIZE_RATIO; 
+
+    }
+    else if(displayMap == 2){
+        map_ratio = FULLMAP_SIZE_RATIO;
+        red[3] = FULLMAP_TRANSPARENCY;
+        green[3] = FULLMAP_TRANSPARENCY;
+        blue[3] = FULLMAP_TRANSPARENCY;
+        orange[3] = FULLMAP_TRANSPARENCY;
+    }
+
+
+
+
+
+    widthRatio = ceil(screenWidth / MAP_SIZE_X * map_ratio);
+    heightRatio = ceil(screenHeight / MAP_SIZE_Z * map_ratio);
 
     if(widthRatio < heightRatio){
         pixelDim = widthRatio;
@@ -416,52 +441,48 @@ void draw2D() {
         pixelDim = heightRatio;
     }
 
-    startLeft = screenWidth - (pixelDim * MAP_SIZE_X);
-    startBottom = screenHeight - (pixelDim * MAP_SIZE_Z);
-
-
-    ///
-    /// Draw the pillars
-    ///
-    set2Dcolour(blue); 
-    for(x = 0; x < MAP_SIZE_X; x++){
-        for(z = 0; z < MAP_SIZE_Z; z++){
-            if(x % (WALL_LENGTH + 1) == 0 && z % (WALL_LENGTH + 1) == 0){
-                curX = x * pixelDim + startLeft;
-                curZ = z * pixelDim + startBottom;
-                draw2Dbox(curX, curZ, curX + pixelDim, curZ + pixelDim);
-            }
-        }
+    if(displayMap == 1){
+        startLeft = screenWidth - (pixelDim * MAP_SIZE_X);
+        startBottom = screenHeight - (pixelDim * MAP_SIZE_Z);
+    }
+    else{
+        startLeft = screenWidth / 2 - (pixelDim * (MAP_SIZE_X - 1)) / 2;
+        startBottom = screenHeight / 2 - (pixelDim * (MAP_SIZE_Z - 1)) / 2;
     }
 
-    ///
-    /// Draw the outer wall
-    ///
-   set2Dcolour(orange);
-   for(x = 0; x < MAP_SIZE_X - 1; x++){
-       curX = startLeft + pixelDim * x;
-       draw2Dbox(curX, startBottom, curX + pixelDim, startBottom + pixelDim);
-       draw2Dbox(curX, startBottom + pixelDim * (MAP_SIZE_Z - 2), curX + pixelDim, startBottom + pixelDim * (MAP_SIZE_Z - 1));
-   } 
-   for(z = 0; z < MAP_SIZE_Z - 1; z++){
-       curZ = startBottom + pixelDim * z;
-       draw2Dbox(startLeft, curZ, startLeft + pixelDim, curZ + pixelDim);
-       draw2Dbox(startLeft + (MAP_SIZE_X - 2) * pixelDim, curZ, startLeft + (MAP_SIZE_Z - 1) * pixelDim, curZ + pixelDim);
-   } 
-
 
 
     ///
-    ///     Draw the floor
+    /// Draw the map 
     ///
-    set2Dcolour(red);
     for(x = 0; x < MAP_SIZE_X - 1; x++){
         for(z = 0; z < MAP_SIZE_Z - 1; z++){
+
             curX = startLeft + pixelDim * x;
             curZ = startBottom + pixelDim * z;
+
+
+            if(world[x][1][z] == OUTER_WALL_COLOUR){
+                set2Dcolour(orange);
+            }
+            else if(world[x][1][z] == INNER_WALL_COLOUR){
+                set2Dcolour(green);
+            }
+            else if(world[x][1][z] == PILLAR_COLOUR){
+                set2Dcolour(blue);
+            }
+            else{
+                set2Dcolour(red);
+            }
+
             draw2Dbox(curX, curZ, curX + pixelDim, curZ + pixelDim);
         }
     }
+
+
+
+
+
 
 
 }
