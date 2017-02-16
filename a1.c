@@ -111,7 +111,7 @@ int MAP_SIZE_Z;
 #define WALKABLE 1
 
 
-void Minimap_Mob(int pixelDim, int startLeft, int startBottom);
+void Minimap_Mob(float x, float z, int pixelDim, int startLeft, int startBottom);
 
 ///
 /// Delta time --------------------------------------------
@@ -121,6 +121,13 @@ int lastWallChangeTime;
 int lastGravityTime;
 int lastUpdateTime;
 
+///
+/// Player shooting
+///
+#define MAX_PROJECTILES 10
+void Shoot();
+Projectile projectiles[MAX_PROJECTILES];
+int projectileCount, projectileInsert;
 
 
 ///
@@ -161,7 +168,6 @@ int PercentChance(float chance);
 
 int Pillar_WallCount();
 int CountAllWalls();
-
 
 
 ///
@@ -304,10 +310,11 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_x >= MAP_SIZE_X - 3){
-          printf("Outside game area! x\n");
+          //printf("Outside game area! x\n");
           curPos_x = (MAP_SIZE_X - 3) * -1;
           curIndex_x = curPos_x;
           //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);////////////////////////////////TODO: this
+          //TODO: this bug still here, fly to x edge, and exit fly mode... segfault
       }
 
       if(curIndex_z < 1){
@@ -316,7 +323,7 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_z >= MAP_SIZE_Z - 2){
-        printf("Outside game area! z\n");
+        //printf("Outside game area! z\n");
         curPos_z = (MAP_SIZE_Z - 2) * -1;
         curIndex_z = curPos_z;
         //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);/////////////////////////////////////TODO: this
@@ -399,6 +406,7 @@ void draw2D() {
     GLfloat red[] = {0.5, 0.0, 0.0, MINIMAP_TRANSPARENCY};
     GLfloat white[] = {1, 1, 1, 1};
     GLfloat black[] = {0.0, 0.0, 0.0, 1.0};
+    GLfloat yellow[] = {1, 0, 1, 1.0};
 
     ///
     ///     Mimimap variables 
@@ -408,8 +416,11 @@ void draw2D() {
     int startBottom;
     int startLeft;
 
+    float player_x, player_y, player_z;
+
     int curX, curZ;
     int x, z;
+    int i;
 
     float map_ratio;
 
@@ -463,10 +474,25 @@ void draw2D() {
     ///
     /// Draw the player
     ///
-    set2Dcolour(black);
-    Minimap_Mob(pixelDim, startLeft, startBottom);
-    //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
+    getViewPosition(&player_x, &player_y, &player_z);
+    player_x = player_x * -1;
+    player_z = player_z * -1;
+    player_z = MAP_SIZE_Z - player_z;
 
+    set2Dcolour(black);
+    Minimap_Mob(player_x, player_z, pixelDim, startLeft, startBottom);
+
+    ///
+    /// Draw the projectiles
+    ///
+    set2Dcolour(yellow);
+    
+    for(i = 0; i < MAX_PROJECTILES; i++){
+        if(projectiles[i].enabled){
+            Minimap_Mob(projectiles[i].x, projectiles[i].z, pixelDim, startLeft, startBottom);
+        }
+    }
+    
 
 
     ///
@@ -506,8 +532,7 @@ void draw2D() {
 
 }
 
-void Minimap_Mob(int pixelDim, int startLeft, int startBottom){
-    float player_x, player_y, player_z;
+void Minimap_Mob(float x, float z, int pixelDim, int startLeft, int startBottom){
     int start_x, end_x, start_y, end_y;
     int playerDim;
     
@@ -516,16 +541,11 @@ void Minimap_Mob(int pixelDim, int startLeft, int startBottom){
         playerDim = 0;
     }
     
-    getViewPosition(&player_x, &player_y, &player_z);
-    player_x = player_x * -1;
-    player_z = player_z * -1;
-    player_z = MAP_SIZE_Z - player_z;
 
-
-    start_x = startLeft + round(player_x * pixelDim) - playerDim; 
-    start_y = startBottom + round((player_z - 2) * pixelDim) + playerDim;
-    end_x = startLeft + round((player_x + 1) * pixelDim) - playerDim;
-    end_y = startBottom + round((player_z - 1) * pixelDim) + playerDim;
+    start_x = startLeft + round(x * pixelDim) - playerDim; 
+    start_y = startBottom + round((z - 2) * pixelDim) + playerDim;
+    end_x = startLeft + round((x + 1) * pixelDim) - playerDim;
+    end_y = startBottom + round((z - 1) * pixelDim) + playerDim;
 
     draw2Dbox(start_x, start_y, end_x, end_y);
     //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
@@ -628,19 +648,25 @@ void update() {
 void mouse(int button, int state, int x, int y) {
 /// called by GLUT when a mouse button is pressed or released.
 
-    /*if (button == GLUT_LEFT_BUTTON)
-    printf("left button - ");
-    else if (button == GLUT_MIDDLE_BUTTON)
-    printf("middle button - ");
-    else
-    printf("right button - ");
+    if (button == GLUT_LEFT_BUTTON){
+        if(state == GLUT_DOWN){
+            Shoot();
+        }
+    }
+    else if (button == GLUT_MIDDLE_BUTTON){
+        printf("middle button - ");
+    }
+    else{
+        printf("right button - ");
+    }
 
-    if (state == GLUT_UP)
-    printf("up - ");
-    else
-    printf("down - ");
+    if (state == GLUT_UP){
 
-    printf("%d %d\n", x, y);*/
+    }
+    else{
+
+    }
+
 }
 
 
@@ -698,6 +724,8 @@ int main(int argc, char** argv)
 
     } else {
 
+        projectileCount = 0;
+        projectileInsert = 0;
         flycontrol = 0;
 
         ///
@@ -1714,4 +1742,25 @@ int CountAllWalls(){
     }
 
     return count;
+}
+
+
+void Shoot(){
+    float playerX, playerY, playerZ;
+    float rotX, rotY, rotZ;
+
+    printf("Shoot now\n");
+    if(projectileInsert >= MAX_PROJECTILES){
+        projectileInsert = 0;
+    } 
+
+    getViewPosition(&playerX, &playerY, &playerZ);
+    
+
+    projectiles[projectileInsert].enabled = 1;
+    projectiles[projectileInsert].x = playerX;
+    projectiles[projectileInsert].z = playerZ;
+
+
+    projectileInsert++;
 }

@@ -52,3 +52,11 @@ typedef struct _GenerationInfo{
     int wallsCreated;
 
 } GenerationInfo;
+
+typedef struct _Projectile{
+    float x;
+    float z;
+    float moveX;
+    float moveZ;
+    int enabled;
+} Projectile;
