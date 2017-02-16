@@ -10,7 +10,10 @@
 /* Frames per second code taken from : */
 /* http://www.lighthouse3d.com/opengl/glut/index.php?fps */
 
-
+////
+//TODO:////////////////////////////////////////////////////////////
+// - if you fly and try to leave the map on the x axis, the game will seg-fault
+///
 
 ///
 /// Function call overview ------------------------------
@@ -71,6 +74,12 @@
 #define WALL_COUNT_Z 6
 #define WALL_LENGTH 5
 #define WALL_HEIGHT 2
+
+
+///
+/// Minimap settings
+///
+#define MINIMAP_SIZE_RATIO 0.33f
 
 
 
@@ -290,6 +299,7 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_x >= MAP_SIZE_X - 2){
+          printf("Outside game area!");
           curPos_x = (MAP_SIZE_X - 2) * -1;
           curIndex_x = curPos_x;
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
@@ -301,6 +311,7 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_z >= MAP_SIZE_Z - 2){
+        printf("Outside game area!");
         curPos_z = (MAP_SIZE_Z - 2) * -1;
         curIndex_z = curPos_z;
         currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
@@ -374,22 +385,54 @@ void collisionResponse() {
 /// draw2D
 ///
 void draw2D() {
-/// Draws 2D shapes on the screen.
-
+    ///
+    ///     Color
+    ///
     GLfloat green[] = {0.0, 0.5, 0.0, 0.5};
     GLfloat black[] = {0.0, 0.0, 0.0, 0.5};
+    GLfloat red[] = {0.5, 0.0, 0.0, 0.9};
 
-    if (testWorld) {
-        /* draw some sample 2d shapes */
-        set2Dcolour(green);
-        //    draw2Dline(0, 0, 500, 500, 15);
-        //    draw2Dtriangle(0, 0, 200, 200, 0, 200);
+    ///
+    ///     Mimimap variables 
+    ///
+    int widthRatio, heightRatio;
+    int blockPixelSize;
+    int startBottom;
+    int startLeft;
 
-        set2Dcolour(black);
-        draw2Dbox(500, 380, 524, 388);
-    } else {
+    int curX, curZ;
+    int x, z;
 
+
+    widthRatio = ceil(screenWidth / MAP_SIZE_X * MINIMAP_SIZE_RATIO);
+    heightRatio = ceil(screenHeight / MAP_SIZE_Z * MINIMAP_SIZE_RATIO);
+
+    if(widthRatio < heightRatio){
+        blockPixelSize = widthRatio;
     }
+    else{
+        blockPixelSize = heightRatio;
+    }
+
+    startLeft = screenWidth - (blockPixelSize * MAP_SIZE_X);
+    startBottom = screenHeight - (blockPixelSize * MAP_SIZE_Z);
+
+
+    ///
+    ///     Draw the floor
+    set2Dcolour(red);
+    for(x = 0; x < MAP_SIZE_X; x++){
+        for(z = 0; z < MAP_SIZE_Z; z++){
+            curX = startLeft + blockPixelSize * x;
+            curZ = startBottom + blockPixelSize * z;
+            draw2Dbox(curX, curZ, curX + blockPixelSize, curZ + blockPixelSize);
+        }
+    }
+
+    ///
+    /// Draw the outer wall
+    ///
+    
 
 }
 
@@ -581,7 +624,6 @@ int main(int argc, char** argv)
         ///
         BuildWorldShell();
         SetupWalls();
-        PrintWallGeneration();
         PlaceWalls(0);
 
         printf("Wall count: %d\n", CountAllWalls());
