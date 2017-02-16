@@ -303,11 +303,11 @@ void collisionResponse() {
           curIndex_x = curPos_x;
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
-      else if(curIndex_x >= MAP_SIZE_X - 2){
-          printf("Outside game area!\n");
-          curPos_x = (MAP_SIZE_X - 2) * -1;
+      else if(curIndex_x >= MAP_SIZE_X - 3){
+          printf("Outside game area! x\n");
+          curPos_x = (MAP_SIZE_X - 3) * -1;
           curIndex_x = curPos_x;
-          currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
+          //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);////////////////////////////////TODO: this
       }
 
       if(curIndex_z < 1){
@@ -316,10 +316,10 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_z >= MAP_SIZE_Z - 2){
-        printf("Outside game area!\n");
+        printf("Outside game area! z\n");
         curPos_z = (MAP_SIZE_Z - 2) * -1;
         curIndex_z = curPos_z;
-        currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
+        //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);/////////////////////////////////////TODO: this
       }
 
 
@@ -463,7 +463,6 @@ void draw2D() {
     ///
     /// Draw the player
     ///
-
     set2Dcolour(black);
     Minimap_Mob(pixelDim, startLeft, startBottom);
     //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
