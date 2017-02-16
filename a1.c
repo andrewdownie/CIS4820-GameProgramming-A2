@@ -111,6 +111,7 @@ int MAP_SIZE_Z;
 #define WALKABLE 1
 
 
+void Minimap_Mob(int pixelDim, int startLeft, int startBottom);
 
 ///
 /// Delta time --------------------------------------------
@@ -411,7 +412,6 @@ void draw2D() {
     int x, z;
 
     float map_ratio;
-    float player_x, player_y, player_z;
 
 
 
@@ -463,14 +463,10 @@ void draw2D() {
     ///
     /// Draw the player
     ///
-    getViewPosition(&player_x, &player_y, &player_z);
-    player_x = player_x * -1;
-    player_z = player_z * -1;
-
-    player_z = MAP_SIZE_Z - player_z;
 
     set2Dcolour(black);
-    draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
+    Minimap_Mob(pixelDim, startLeft, startBottom);
+    //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
 
 
 
@@ -509,6 +505,31 @@ void draw2D() {
 
 
 
+}
+
+void Minimap_Mob(int pixelDim, int startLeft, int startBottom){
+    float player_x, player_y, player_z;
+    int start_x, end_x, start_y, end_y;
+    int playerDim;
+    
+    playerDim = pixelDim / 2;
+    if(playerDim < 1){
+        playerDim = 0;
+    }
+    
+    getViewPosition(&player_x, &player_y, &player_z);
+    player_x = player_x * -1;
+    player_z = player_z * -1;
+    player_z = MAP_SIZE_Z - player_z;
+
+
+    start_x = startLeft + round(player_x * pixelDim) - playerDim; 
+    start_y = startBottom + round((player_z - 2) * pixelDim) + playerDim;
+    end_x = startLeft + round((player_x + 1) * pixelDim) - playerDim;
+    end_y = startBottom + round((player_z - 1) * pixelDim) + playerDim;
+
+    draw2Dbox(start_x, start_y, end_x, end_y);
+    //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
 }
 
 
