@@ -388,15 +388,17 @@ void draw2D() {
     ///
     ///     Color
     ///
-    GLfloat green[] = {0.0, 0.5, 0.0, 0.5};
-    GLfloat black[] = {0.0, 0.0, 0.0, 0.5};
-    GLfloat red[] = {0.5, 0.0, 0.0, 0.9};
+    GLfloat orange[] = {1.0, 0.5, 0.0, 1.0};
+    GLfloat green[] = {0.0, 0.5, 0.0, 1.0};
+    GLfloat black[] = {0.0, 0.0, 0.0, 1.0};
+    GLfloat blue[] = {0.0, 0.0, 0.5, 1.0};
+    GLfloat red[] = {0.5, 0.0, 0.0, 1.0};
 
     ///
     ///     Mimimap variables 
     ///
     int widthRatio, heightRatio;
-    int blockPixelSize;
+    int pixelDim;
     int startBottom;
     int startLeft;
 
@@ -408,31 +410,59 @@ void draw2D() {
     heightRatio = ceil(screenHeight / MAP_SIZE_Z * MINIMAP_SIZE_RATIO);
 
     if(widthRatio < heightRatio){
-        blockPixelSize = widthRatio;
+        pixelDim = widthRatio;
     }
     else{
-        blockPixelSize = heightRatio;
+        pixelDim = heightRatio;
     }
 
-    startLeft = screenWidth - (blockPixelSize * MAP_SIZE_X);
-    startBottom = screenHeight - (blockPixelSize * MAP_SIZE_Z);
+    startLeft = screenWidth - (pixelDim * MAP_SIZE_X);
+    startBottom = screenHeight - (pixelDim * MAP_SIZE_Z);
 
 
     ///
-    ///     Draw the floor
-    set2Dcolour(red);
+    /// Draw the pillars
+    ///
+    set2Dcolour(blue); 
     for(x = 0; x < MAP_SIZE_X; x++){
         for(z = 0; z < MAP_SIZE_Z; z++){
-            curX = startLeft + blockPixelSize * x;
-            curZ = startBottom + blockPixelSize * z;
-            draw2Dbox(curX, curZ, curX + blockPixelSize, curZ + blockPixelSize);
+            if(x % (WALL_LENGTH + 1) == 0 && z % (WALL_LENGTH + 1) == 0){
+                curX = x * pixelDim + startLeft;
+                curZ = z * pixelDim + startBottom;
+                draw2Dbox(curX, curZ, curX + pixelDim, curZ + pixelDim);
+            }
         }
     }
 
     ///
     /// Draw the outer wall
     ///
-    
+   set2Dcolour(orange);
+   for(x = 0; x < MAP_SIZE_X - 1; x++){
+       curX = startLeft + pixelDim * x;
+       draw2Dbox(curX, startBottom, curX + pixelDim, startBottom + pixelDim);
+       draw2Dbox(curX, startBottom + pixelDim * (MAP_SIZE_Z - 2), curX + pixelDim, startBottom + pixelDim * (MAP_SIZE_Z - 1));
+   } 
+   for(z = 0; z < MAP_SIZE_Z - 1; z++){
+       curZ = startBottom + pixelDim * z;
+       draw2Dbox(startLeft, curZ, startLeft + pixelDim, curZ + pixelDim);
+       draw2Dbox(startLeft + (MAP_SIZE_X - 2) * pixelDim, curZ, startLeft + (MAP_SIZE_Z - 1) * pixelDim, curZ + pixelDim);
+   } 
+
+
+
+    ///
+    ///     Draw the floor
+    ///
+    set2Dcolour(red);
+    for(x = 0; x < MAP_SIZE_X - 1; x++){
+        for(z = 0; z < MAP_SIZE_Z - 1; z++){
+            curX = startLeft + pixelDim * x;
+            curZ = startBottom + pixelDim * z;
+            draw2Dbox(curX, curZ, curX + pixelDim, curZ + pixelDim);
+        }
+    }
+
 
 }
 
