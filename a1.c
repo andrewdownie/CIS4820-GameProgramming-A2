@@ -403,7 +403,7 @@ void draw2D() {
     ///     Mimimap variables 
     ///
     int widthRatio, heightRatio;
-    int pixelDim;
+    int pixelDim, playerDim;
     int startBottom;
     int startLeft;
 
@@ -446,6 +446,11 @@ void draw2D() {
         pixelDim = heightRatio;
     }
 
+    playerDim = pixelDim / 2;
+    if(playerDim < 1){
+        playerDim = 1;
+    }
+
     if(displayMap == 1){
         startLeft = screenWidth - (pixelDim * MAP_SIZE_X);
         startBottom = screenHeight - (pixelDim * MAP_SIZE_Z);
@@ -464,10 +469,10 @@ void draw2D() {
 
     player_z = MAP_SIZE_Z - player_z;
 
-    printf("%f %f\n", player_x, player_z);
     set2Dcolour(black);
-    draw2Dbox(startLeft + round((player_x - 1) * pixelDim), startBottom + round((player_z - 1) * pixelDim), startLeft + round((player_x) * pixelDim), startBottom + round((player_z) * pixelDim));
-    //draw2Dbox(0, 0, 100, 100);
+    draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
+
+
 
     ///
     /// Draw the map 
@@ -475,7 +480,7 @@ void draw2D() {
     for(z = 0; z < MAP_SIZE_Z - 1; z++){
         for(x = 0; x < MAP_SIZE_X - 1; x++){
             curX = startLeft + pixelDim * x;
-            curZ = startBottom + pixelDim * z;
+            curZ = startBottom + pixelDim * (MAP_SIZE_Z - z  - 2);
 
 
             if(world[x][1][z] == OUTER_WALL_COLOUR){
