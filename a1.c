@@ -548,7 +548,6 @@ void Minimap_Mob(float x, float z, int pixelDim, int startLeft, int startBottom)
     end_y = startBottom + round((z - 1) * pixelDim) + playerDim;
 
     draw2Dbox(start_x, start_y, end_x, end_y);
-    //draw2Dbox(startLeft + round((player_x) * pixelDim) - playerDim, startBottom + round((player_z - 2) * pixelDim) + playerDim, startLeft + round((player_x + 1) * pixelDim) - playerDim, startBottom + round((player_z - 1) * pixelDim) + playerDim);
 }
 
 
@@ -774,6 +773,12 @@ int main(int argc, char** argv)
         world[3][3][4] = 5;
         world[3][4][4] = 5;
         world[3][5][4] = 5;
+
+
+        for(i = 0; i < MAX_PROJECTILES; i++){
+            createMob(i, i, 5.0, 1.0, 0.0);
+            projectiles[i].mobID = i;
+        }
 
     }
 

@@ -54,9 +54,11 @@ typedef struct _GenerationInfo{
 } GenerationInfo;
 
 typedef struct _Projectile{
-    float x;
-    float z;
+    int timeEnabled;
+    int enabled;
+    int mobID;
     float moveX;
     float moveZ;
-    int enabled;
+    float x;
+    float z;
 } Projectile;
