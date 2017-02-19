@@ -422,6 +422,7 @@ void draw2D() {
     int startLeft;
 
     float player_x, player_y, player_z;
+    float projectile_x, projectile_z;
 
     int curX, curZ;
     int x, z;
@@ -495,7 +496,10 @@ void draw2D() {
     
     for(i = 0; i < MAX_PROJECTILES; i++){
         if(projectiles[i].enabled){
-            Minimap_Mob(projectiles[i].x, projectiles[i].z, pixelDim, startLeft, startBottom);
+            projectile_x = projectiles[i].x * -1;
+            projectile_z = projectiles[i].z * -1;
+            projectile_z = MAP_SIZE_Z - projectile_z;
+            Minimap_Mob(projectile_x, projectile_z, pixelDim, startLeft, startBottom);
         }
     }
     
