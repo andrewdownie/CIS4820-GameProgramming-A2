@@ -1754,6 +1754,9 @@ void Shoot(){
     float playerX, playerY, playerZ;
     float rotX, rotY, rotZ;
 
+    float mobX, mobZ;
+    int mobID;
+
     printf("Shoot now\n");
     if(projectileInsert >= MAX_PROJECTILES){
         projectileInsert = 0;
@@ -1763,8 +1766,17 @@ void Shoot(){
     
 
     projectiles[projectileInsert].enabled = 1;
-    projectiles[projectileInsert].x = playerX;
-    projectiles[projectileInsert].z = playerZ;
+    projectiles[projectileInsert].timeEnabled = 0;
+
+    projectiles[projectileCount].x = playerX;
+    projectiles[projectileCount].z = playerZ;
+    mobID = projectiles[projectileInsert].mobID;
+
+    //TODO: need to set move x and move z for projectile//////////////////////////
+    //projectiles[projectileInsert].moveX = ?;
+    //projectiles[projectileInsert].moveZ = ?;
+
+    setMobPosition(mobID, playerX * -1, 1, playerZ * -1, 0);
 
 
     projectileInsert++;
