@@ -58,7 +58,9 @@ typedef struct _Projectile{
     int enabled;
     int mobID;
     float moveX;
+    float moveY;
     float moveZ;
     float x;
+    float y;
     float z;
 } Projectile;

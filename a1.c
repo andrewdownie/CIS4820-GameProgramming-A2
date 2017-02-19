@@ -124,7 +124,7 @@ int lastUpdateTime;
 ///
 /// Player shooting
 ///
-#define PROJECTILE_SPAWN_DISTANCE 0.8f 
+#define PROJECTILE_SPAWN_DISTANCE 0.2f 
 #define PROJECTILE_MOVE_SPEED 10.0f
 #define PROJECTILE_LIFE_MILI 5000
 #define MAX_PROJECTILES 3 
@@ -644,10 +644,14 @@ void update() {
     } else {
         int currentElapsedTime, deltaWallChangeTime;
         int deltaTime;
-        float deltaX, deltaZ;
-        float curX, curZ;
+        float deltaX, deltaY, deltaZ;
+        float curX, curY, curZ;
         int mobID;
 
+
+        ///
+        /// Move walls
+        ///
         if(AUTO_CHANGE_WALLS){
             currentElapsedTime = glutGet(GLUT_ELAPSED_TIME);
             deltaWallChangeTime = currentElapsedTime - lastUpdateTime;
@@ -666,21 +670,27 @@ void update() {
         }
 
 
+        ///
+        /// Move projectiles
+        ///
         deltaTime = glutGet(GLUT_ELAPSED_TIME) - lastUpdateTime;
         for(i = 0; i < MAX_PROJECTILES; i++){
             if(projectiles[i].enabled){
                 deltaX = projectiles[i].moveX * deltaTime / 1000;
+                deltaY = projectiles[i].moveY * deltaTime / 1000;
                 deltaZ = projectiles[i].moveZ * deltaTime / 1000; 
                 curX = projectiles[i].x;
+                curY = projectiles[i].y;
                 curZ = projectiles[i].z;
                 mobID = projectiles[i].mobID;
 
                 projectiles[i].x = curX - deltaX;
+                projectiles[i].y = curY - deltaY;
                 projectiles[i].z = curZ - deltaZ;
                 
 
 
-                setMobPosition(mobID, projectiles[i].x * -1, 1, projectiles[i].z * -1, 0);
+                setMobPosition(mobID, projectiles[i].x * -1, projectiles[i].y * - 1, projectiles[i].z * -1, 0);
 
                 projectiles[i].timeEnabled += deltaTime;
 
@@ -1816,8 +1826,8 @@ void Shoot(){
     int projectileInsert = -1;
     int i;
 
-    float mobX, mobZ;
-    float moveX, moveZ;
+    //float mobX, mobZ;
+    float moveX, moveY, moveZ;
     int mobID;
 
     printf("Shoot now\n");
@@ -1848,14 +1858,17 @@ void Shoot(){
 
     //TODO: need to set move x and move z for projectile//////////////////////////
     moveX = cos((rotY - 90) * 0.0174533f);
+    moveY = -sin((rotX) * 0.0174533f);
     moveZ = sin((rotY - 90) * 0.0174533f);
     projectiles[projectileInsert].moveX = moveX * PROJECTILE_MOVE_SPEED;
+    projectiles[projectileInsert].moveY = moveY * PROJECTILE_MOVE_SPEED;
     projectiles[projectileInsert].moveZ = moveZ * PROJECTILE_MOVE_SPEED; 
 
     projectiles[projectileInsert].x = playerX + 0.5f - moveX * PROJECTILE_SPAWN_DISTANCE;
+    projectiles[projectileInsert].y = playerY + 0.5f - moveY * PROJECTILE_SPAWN_DISTANCE;
     projectiles[projectileInsert].z = playerZ + 0.5f - moveZ * PROJECTILE_SPAWN_DISTANCE;
 
-    setMobPosition(mobID, projectiles[projectileInsert].x * -1, 1, projectiles[projectileInsert].z * -1, 0);
+    setMobPosition(mobID, projectiles[projectileInsert].x * -1, projectiles[projectileInsert].y * -1, projectiles[projectileInsert].z * -1, 0);
     showMob(mobID);
 
     projectileInsert++;
