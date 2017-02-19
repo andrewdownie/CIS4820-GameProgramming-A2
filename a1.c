@@ -124,8 +124,9 @@ int lastUpdateTime;
 ///
 /// Player shooting
 ///
-#define PROJECTILE_MOVE_SPEED 1.4
-#define MAX_PROJECTILES 10
+#define PROJECTILE_SPAWN_DISTANCE 0.8f 
+#define PROJECTILE_MOVE_SPEED 10.0f
+#define MAX_PROJECTILES 10 
 void Shoot();
 Projectile projectiles[MAX_PROJECTILES];
 int projectileCount, projectileInsert;
@@ -639,7 +640,6 @@ void update() {
 
 
         deltaTime = glutGet(GLUT_ELAPSED_TIME) - lastUpdateTime;
-        printf("Last update time: %d\n", deltaTime);
         for(i = 0; i < MAX_PROJECTILES; i++){
             if(projectiles[i].enabled){
                 deltaX = projectiles[i].moveX * deltaTime / 1000;
@@ -1784,6 +1784,7 @@ void Shoot(){
     float rotX, rotY, rotZ;
 
     float mobX, mobZ;
+    float moveX, moveZ;
     int mobID;
 
     printf("Shoot now\n");
@@ -1791,19 +1792,24 @@ void Shoot(){
         projectileInsert = 0;
     } 
 
+
+
     getViewPosition(&playerX, &playerY, &playerZ);
+    getViewOrientation(&rotX, &rotY, &rotZ);
     
 
     projectiles[projectileInsert].enabled = 1;
     projectiles[projectileInsert].timeEnabled = 0;
-
-    projectiles[projectileInsert].x = playerX + 0.5f;
-    projectiles[projectileInsert].z = playerZ + 0.5f;
     mobID = projectiles[projectileInsert].mobID;
 
     //TODO: need to set move x and move z for projectile//////////////////////////
-    projectiles[projectileInsert].moveX = 1;
-    projectiles[projectileInsert].moveZ = 1; 
+    moveX = cos((rotY - 90) * 0.0174533f);
+    moveZ = sin((rotY - 90) * 0.0174533f);
+    projectiles[projectileInsert].moveX = moveX * PROJECTILE_MOVE_SPEED;
+    projectiles[projectileInsert].moveZ = moveZ * PROJECTILE_MOVE_SPEED; 
+
+    projectiles[projectileInsert].x = playerX + 0.5f - moveX * PROJECTILE_SPAWN_DISTANCE;
+    projectiles[projectileInsert].z = playerZ + 0.5f - moveZ * PROJECTILE_SPAWN_DISTANCE;
 
     setMobPosition(mobID, projectiles[projectileCount].x * -1, 1, projectiles[projectileCount].z * -1, 0);
 
