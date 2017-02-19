@@ -268,7 +268,6 @@ void collisionResponse() {
     /// Clamp camera rotation
     ///
     getViewOrientation(&rotX, &rotY, &rotZ);
-    printf("Rotx %f\n", rotX);
 
     rotX = remainderf(rotX, 360);
 
@@ -676,6 +675,7 @@ void update() {
         int deltaTime;
         float deltaX, deltaY, deltaZ;
         float curX, curY, curZ;
+        int intX, intY, intZ;
         int mobID;
 
 
@@ -709,14 +709,14 @@ void update() {
                 deltaX = projectiles[i].moveX * deltaTime / 1000;
                 deltaY = projectiles[i].moveY * deltaTime / 1000;
                 deltaZ = projectiles[i].moveZ * deltaTime / 1000; 
-                curX = projectiles[i].x;
-                curY = projectiles[i].y;
-                curZ = projectiles[i].z;
+                curX = projectiles[i].x - deltaX;
+                curY = projectiles[i].y - deltaY;
+                curZ = projectiles[i].z - deltaZ;
                 mobID = projectiles[i].mobID;
 
-                projectiles[i].x = curX - deltaX;
-                projectiles[i].y = curY - deltaY;
-                projectiles[i].z = curZ - deltaZ;
+                projectiles[i].x = curX;
+                projectiles[i].y = curY;
+                projectiles[i].z = curZ;
                 
 
 
@@ -728,6 +728,20 @@ void update() {
                     projectiles[i].enabled = 0;
                     hideMob(projectiles[i].mobID);
                 }
+
+                
+               intX = (int)curX * -1;
+               intY = (int)curY * -1;
+               intZ = (int)curZ * -1; 
+               if(intX >= 0 && intX < WORLDX && intY >= 0 && intY < WORLDY && intZ >= 0 && intZ < WORLDZ){
+                if(world[intX][intY][intZ] != EMPTY_PIECE){
+                    projectiles[i].enabled = 0;
+                    hideMob(projectiles[i].mobID);
+                    //TODO: delete the wall
+                    world[intX][intY][intZ] = 0;
+                }
+               }
+
 
                 
             }
