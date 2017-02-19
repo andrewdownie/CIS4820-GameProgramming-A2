@@ -125,7 +125,7 @@ int lastUpdateTime;
 /// Player shooting
 ///
 #define PROJECTILE_SPAWN_DISTANCE 0.2f 
-#define PROJECTILE_MOVE_SPEED 10.0f
+#define PROJECTILE_MOVE_SPEED 5.0f
 #define PROJECTILE_LIFE_MILI 5000
 #define MAX_PROJECTILES 3 
 void Shoot();
@@ -730,14 +730,13 @@ void update() {
                 }
 
                 
-               intX = (int)curX * -1;
-               intY = (int)curY * -1;
-               intZ = (int)curZ * -1; 
+               intX = (int)(curX * -1 + 0.5f);
+               intY = (int)(curY * -1 + 0.5f);
+               intZ = (int)(curZ * -1 + 0.5f); 
                if(intX >= 0 && intX < WORLDX && intY >= 0 && intY < WORLDY && intZ >= 0 && intZ < WORLDZ){
                 if(world[intX][intY][intZ] != EMPTY_PIECE){
                     projectiles[i].enabled = 0;
                     hideMob(projectiles[i].mobID);
-                    //TODO: delete the wall
                     world[intX][intY][intZ] = 0;
                 }
                }
@@ -1135,7 +1134,7 @@ void PlaceVerticalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     for(z = 0; z < WALL_LENGTH; z++){
 
         for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-            world[wallX][1 + yOffset][wallZ + z] = 0;
+            //world[wallX][1 + yOffset][wallZ + z] = 0;
         }
 
     }
@@ -1167,6 +1166,10 @@ void PlaceVerticalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     actualWallLength = (WALL_LENGTH * wall->percentClosed) / 100;
     for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
         for(z = 0; z < actualWallLength; z++){
+
+            if(deltaTime != 0){
+                z = actualWallLength - 1;
+            }
 
             if( (wall->direction == moveNorth && wall->state == closing) || (wall->direction == moveSouth && wall->state == opening) ){
                 world[wallX][1 + yOffset][wallZ + z] = INNER_WALL_COLOUR;
@@ -1222,7 +1225,7 @@ void PlaceHorizontalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     for(x = 0; x < WALL_LENGTH; x++){
 
         for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-            world[wallX + x][1 + yOffset][wallZ] = 0;
+            //world[wallX + x][1 + yOffset][wallZ] = 0;
         }
 
     }
@@ -1259,6 +1262,9 @@ void PlaceHorizontalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     actualWallLength = (WALL_LENGTH * wall->percentClosed) / 100;
     for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
         for(x = 0; x < actualWallLength; x++){
+            if(deltaTime != 0){
+                x = actualWallLength - 1;
+            }
 
             if( (wall->direction == moveWest && wall->state == closing) || (wall->direction == moveEast && wall->state == opening) ){
                 world[wallX + x][1 + yOffset][wallZ] = INNER_WALL_COLOUR;
@@ -1874,7 +1880,6 @@ void Shoot(){
     float moveX, moveY, moveZ;
     int mobID;
 
-    printf("Shoot now\n");
 
     for(i = 0; i < MAX_PROJECTILES; i++){
         if(projectiles[i].enabled == 0){
@@ -1884,10 +1889,11 @@ void Shoot(){
     }
 
     if(projectileInsert == -1){
-        printf("Cant shoot now\n");
+        //printf("Cant shoot now\n");
         return;
     }
 
+    //printf("Shoot now\n");
     
 
 
@@ -1900,7 +1906,6 @@ void Shoot(){
     projectiles[projectileInsert].timeEnabled = 0;
     mobID = projectiles[projectileInsert].mobID;
 
-    //TODO: need to set move x and move z for projectile//////////////////////////
     moveX = cos((rotY - 90) * 0.0174533f);
     moveY = -sin((rotX) * 0.0174533f);
     moveZ = sin((rotY - 90) * 0.0174533f);
