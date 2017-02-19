@@ -256,10 +256,40 @@ void collisionResponse() {
     float curPos_x, curPos_y, curPos_z;
     float oldPos_x, oldPos_y, oldPos_z;
 
+    float rotX, rotY, rotZ;
+
     float deltaGravity;
     int previousPiece;
     int currentPiece;
     int floorLevel;
+
+
+    ///
+    /// Clamp camera rotation
+    ///
+    getViewOrientation(&rotX, &rotY, &rotZ);
+    printf("Rotx %f\n", rotX);
+
+    rotX = remainderf(rotX, 360);
+
+    if(rotX < -180){
+        rotX = rotX + 180;
+    }
+
+
+    if(rotX > -100 && rotX < -40){
+        rotX = -40;
+    }
+
+
+    if(rotX > 30){
+        rotX = 30;
+    }
+
+    
+
+    setViewOrientation(rotX, rotY, rotZ);
+
 
 
 
