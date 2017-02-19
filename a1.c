@@ -126,10 +126,10 @@ int lastUpdateTime;
 ///
 #define PROJECTILE_SPAWN_DISTANCE 0.8f 
 #define PROJECTILE_MOVE_SPEED 10.0f
-#define MAX_PROJECTILES 10 
+#define PROJECTILE_LIFE_MILI 5000
+#define MAX_PROJECTILES 3 
 void Shoot();
 Projectile projectiles[MAX_PROJECTILES];
-int projectileCount, projectileInsert;
 
 
 ///
@@ -410,6 +410,9 @@ void draw2D() {
     GLfloat black[] = {0.0, 0.0, 0.0, 1.0};
     GLfloat yellow[] = {1, 0, 1, 1.0};
 
+    GLfloat gold[] = {1.0, 0.84, 0.0, 1.0};
+    GLfloat grey[] = {0.5, 0.5, 0.5, 0.5};
+
     ///
     ///     Mimimap variables 
     ///
@@ -425,6 +428,7 @@ void draw2D() {
     int i;
 
     float map_ratio;
+    int projectileCount;
 
 
 
@@ -528,7 +532,26 @@ void draw2D() {
 
 
 
+    ///
+    /// Draw player ammo
+    ///
+    projectileCount = 0;
+    for(i = 0; i < MAX_PROJECTILES; i++){
+        if(projectiles[i].enabled == 0){
+            projectileCount++;
+        }
+    }
 
+    for(i = 0; i < MAX_PROJECTILES; i++){
+        if(i < projectileCount){
+            set2Dcolour(gold);
+        }
+        else{
+            set2Dcolour(grey);
+        }
+
+        draw2Dbox( 5 + i * 2 * pixelDim, 5, 2 * pixelDim + i * 2 * pixelDim, 5 + pixelDim * 5);
+    }
 
 
 
@@ -657,6 +680,11 @@ void update() {
 
                 projectiles[i].timeEnabled += deltaTime;
 
+                if(projectiles[i].timeEnabled >= PROJECTILE_LIFE_MILI){
+                    projectiles[i].enabled = 0;
+                    hideMob(projectiles[i].mobID);
+                }
+
                 
             }
         }
@@ -752,8 +780,6 @@ int main(int argc, char** argv)
 
     } else {
 
-        projectileCount = 0;
-        projectileInsert = 0;
         flycontrol = 0;
 
         ///
@@ -1783,14 +1809,28 @@ void Shoot(){
     float playerX, playerY, playerZ;
     float rotX, rotY, rotZ;
 
+    int projectileInsert = -1;
+    int i;
+
     float mobX, mobZ;
     float moveX, moveZ;
     int mobID;
 
     printf("Shoot now\n");
-    if(projectileInsert >= MAX_PROJECTILES){
-        projectileInsert = 0;
-    } 
+
+    for(i = 0; i < MAX_PROJECTILES; i++){
+        if(projectiles[i].enabled == 0){
+            projectileInsert = i;
+            break;
+        }
+    }
+
+    if(projectileInsert == -1){
+        printf("Cant shoot now\n");
+        return;
+    }
+
+    
 
 
 
@@ -1811,8 +1851,8 @@ void Shoot(){
     projectiles[projectileInsert].x = playerX + 0.5f - moveX * PROJECTILE_SPAWN_DISTANCE;
     projectiles[projectileInsert].z = playerZ + 0.5f - moveZ * PROJECTILE_SPAWN_DISTANCE;
 
-    setMobPosition(mobID, projectiles[projectileCount].x * -1, 1, projectiles[projectileCount].z * -1, 0);
-
+    setMobPosition(mobID, projectiles[projectileInsert].x * -1, 1, projectiles[projectileInsert].z * -1, 0);
+    showMob(mobID);
 
     projectileInsert++;
 }
