@@ -124,6 +124,7 @@ int lastUpdateTime;
 ///
 /// Player shooting
 ///
+#define PROJECTILE_MOVE_SPEED 1.4
 #define MAX_PROJECTILES 10
 void Shoot();
 Projectile projectiles[MAX_PROJECTILES];
@@ -557,7 +558,7 @@ void Minimap_Mob(float x, float z, int pixelDim, int startLeft, int startBottom)
 ///
 void update() {
 /// Background process, it is called when there are no other events.
-
+    int i;
     /* sample animation for the test world, don't remove this code */
     /* -demo of animating mobs */
     if (testWorld) {
@@ -614,6 +615,10 @@ void update() {
 
     } else {
         int currentElapsedTime, deltaWallChangeTime;
+        int deltaTime;
+        float deltaX, deltaZ;
+        float curX, curZ;
+        int mobID;
 
         if(AUTO_CHANGE_WALLS){
             currentElapsedTime = glutGet(GLUT_ELAPSED_TIME);
@@ -630,11 +635,35 @@ void update() {
             PlaceWalls(deltaWallChangeTime);
 
 
-            lastUpdateTime = glutGet(GLUT_ELAPSED_TIME);
+        }
+
+
+        deltaTime = glutGet(GLUT_ELAPSED_TIME) - lastUpdateTime;
+        printf("Last update time: %d\n", deltaTime);
+        for(i = 0; i < MAX_PROJECTILES; i++){
+            if(projectiles[i].enabled){
+                deltaX = projectiles[i].moveX * deltaTime / 1000;
+                deltaZ = projectiles[i].moveZ * deltaTime / 1000; 
+                curX = projectiles[i].x;
+                curZ = projectiles[i].z;
+                mobID = projectiles[i].mobID;
+
+                projectiles[i].x = curX - deltaX;
+                projectiles[i].z = curZ - deltaZ;
+                
+
+
+                setMobPosition(mobID, projectiles[i].x * -1, 1, projectiles[i].z * -1, 0);
+
+                projectiles[i].timeEnabled += deltaTime;
+
+                
+            }
         }
 
 
 
+        lastUpdateTime = glutGet(GLUT_ELAPSED_TIME);
         collisionResponse();
     }
 }
@@ -1768,15 +1797,15 @@ void Shoot(){
     projectiles[projectileInsert].enabled = 1;
     projectiles[projectileInsert].timeEnabled = 0;
 
-    projectiles[projectileCount].x = playerX;
-    projectiles[projectileCount].z = playerZ;
+    projectiles[projectileInsert].x = playerX + 0.5f;
+    projectiles[projectileInsert].z = playerZ + 0.5f;
     mobID = projectiles[projectileInsert].mobID;
 
     //TODO: need to set move x and move z for projectile//////////////////////////
-    //projectiles[projectileInsert].moveX = ?;
-    //projectiles[projectileInsert].moveZ = ?;
+    projectiles[projectileInsert].moveX = 1;
+    projectiles[projectileInsert].moveZ = 1; 
 
-    setMobPosition(mobID, playerX * -1, 1, playerZ * -1, 0);
+    setMobPosition(mobID, projectiles[projectileCount].x * -1, 1, projectiles[projectileCount].z * -1, 0);
 
 
     projectileInsert++;
