@@ -1131,12 +1131,15 @@ void PlaceVerticalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     ///
     /// Clear the wall first
     ///
-    for(z = 0; z < WALL_LENGTH; z++){
+    if(wall->state == open){
 
-        for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-            //world[wallX][1 + yOffset][wallZ + z] = 0;
+        for(z = 0; z < WALL_LENGTH; z++){
+
+            for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
+                world[wallX][1 + yOffset][wallZ + z] = 0;
+            }
+
         }
-
     }
 
 
@@ -1164,34 +1167,43 @@ void PlaceVerticalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     /// Place the wall
     ///
     actualWallLength = (WALL_LENGTH * wall->percentClosed) / 100;
+    if(wall->state == closed && deltaTime != 0){
+        return;///////////////////////////////////////////////////////////////////
+    }
+
     for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-        for(z = 0; z < actualWallLength; z++){
+        for(z = 0; z < WALL_LENGTH; z++){
 
             if(deltaTime != 0){
-                z = actualWallLength - 1;
+                //z = actualWallLength - 1;
             }
 
-            if( (wall->direction == moveNorth && wall->state == closing) || (wall->direction == moveSouth && wall->state == opening) ){
-                world[wallX][1 + yOffset][wallZ + z] = INNER_WALL_COLOUR;
-            }
-            else{
-                world[wallX][1 + yOffset][wallZ + WALL_LENGTH - z - 1] = INNER_WALL_COLOUR;
-            }
 
-            getViewPosition(&playerXf, &playerYf, &playerZf);
-            playerX = (int)playerXf * -1;
-            playerY = (int)playerYf * -1;
-            playerZ = (int)playerZf * -1;
+            if(z - 1 < actualWallLength){
+                if( (wall->direction == moveNorth && wall->state == closing) ){
+                    world[wallX][1 + yOffset][wallZ + z] = INNER_WALL_COLOUR;
+                }
+                else{
+                    world[wallX][1 + yOffset][wallZ + WALL_LENGTH - z - 1] = INNER_WALL_COLOUR;
+                }
+                getViewPosition(&playerXf, &playerYf, &playerZf);
+                playerX = (int)playerXf * -1;
+                playerY = (int)playerYf * -1;
+                playerZ = (int)playerZf * -1;
 
-            for(y = 0; y < WALL_HEIGHT; y++){
-                if(playerX == wallX && playerZ == wallZ + z && y + 1 == playerY){
-                    setViewPosition(playerXf + 1, playerYf, playerZf);
+                for(y = 0; y < WALL_HEIGHT; y++){
+                    if(playerX == wallX && playerZ == wallZ + z && y + 1 == playerY){
+                        setViewPosition(playerXf + 1, playerYf, playerZf);
+                    }
                 }
             }
+            else{
+                world[wallX][1 + yOffset][wallZ +z] = 0;
+            }
+
 
 
         }
-
 
     }
 
@@ -1222,12 +1234,15 @@ void PlaceHorizontalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     ///
     /// Clear the wall first
     ///
-    for(x = 0; x < WALL_LENGTH; x++){
+    if(wall->state == open){
 
-        for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-            //world[wallX + x][1 + yOffset][wallZ] = 0;
+        for(x = 0; x < WALL_LENGTH; x++){
+
+            for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
+                world[wallX + x][1 + yOffset][wallZ] = 0;
+            }
+
         }
-
     }
 
 
@@ -1260,29 +1275,39 @@ void PlaceHorizontalWall(Wall *wall, int wallX, int wallZ, int deltaTime){
     /// Place the wall
     ///
     actualWallLength = (WALL_LENGTH * wall->percentClosed) / 100;
+    if(wall->state == closed && deltaTime != 0){
+        return;
+    }
+
     for(yOffset = 0; yOffset < WALL_HEIGHT; yOffset++){
-        for(x = 0; x < actualWallLength; x++){
+        for(x = 0; x < WALL_LENGTH; x++){
             if(deltaTime != 0){
-                x = actualWallLength - 1;
+                //x = WALL_LENGTH - 1;
             }
 
-            if( (wall->direction == moveWest && wall->state == closing) || (wall->direction == moveEast && wall->state == opening) ){
-                world[wallX + x][1 + yOffset][wallZ] = INNER_WALL_COLOUR;
+
+            if(x - 1 < actualWallLength){
+                if( (wall->direction == moveWest && wall->state == closing) ){
+                    world[wallX + x][1 + yOffset][wallZ] = INNER_WALL_COLOUR;
+                }
+                else{
+                    world[wallX + WALL_LENGTH - x - 1][1 + yOffset][wallZ] = INNER_WALL_COLOUR;
+                }
+
+
+                getViewPosition(&playerXf, &playerYf, &playerZf);
+                playerX = (int)playerXf * -1;
+                playerY = (int)playerYf * -1;
+                playerZ = (int)playerZf * -1;
+
+                for(y = 0; y < WALL_HEIGHT; y++){
+                    if(playerX == wallX + x && playerZ == wallZ && y + 1 ==  playerY){
+                        setViewPosition(playerXf, playerYf, playerZf - 1);
+                    }
+                }
             }
             else{
-                world[wallX + WALL_LENGTH - x - 1][1 + yOffset][wallZ] = INNER_WALL_COLOUR;
-            }
-
-
-            getViewPosition(&playerXf, &playerYf, &playerZf);
-            playerX = (int)playerXf * -1;
-            playerY = (int)playerYf * -1;
-            playerZ = (int)playerZf * -1;
-
-            for(y = 0; y < WALL_HEIGHT; y++){
-                if(playerX == wallX + x && playerZ == wallZ && y + 1 ==  playerY){
-                    setViewPosition(playerXf, playerYf, playerZf - 1);
-                }
+                world[wallX + x][1 + yOffset][wallZ] = 0;
             }
 
 
