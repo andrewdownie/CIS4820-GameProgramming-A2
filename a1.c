@@ -340,11 +340,13 @@ void collisionResponse() {
           curIndex_x = curPos_x;
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
-      else if(curIndex_x >= MAP_SIZE_X - 3){
-          //printf("Outside game area! x\n");
-          curPos_x = (MAP_SIZE_X - 3) * -1;
-          curIndex_x = curPos_x;
-          //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);////////////////////////////////TODO: this
+      else if(curIndex_x >= MAP_SIZE_X - 2){
+          //printf(" 1 Outside game area! x\n");
+          curPos_x = (MAP_SIZE_X - 2) * -1;
+          curIndex_x = curPos_x * -1;
+          //printf("x%d y%d z%d\n", curIndex_x, curIndex_y, curIndex_z);
+          currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);////////////////////////////////TODO: this
+          //printf(" 2 Outside game area! x\n");
           //TODO: this bug still here, fly to x edge, and exit fly mode... segfault
       }
 
@@ -354,10 +356,11 @@ void collisionResponse() {
           currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);
       }
       else if(curIndex_z >= MAP_SIZE_Z - 2){
-        //printf("Outside game area! z\n");
-        curPos_z = (MAP_SIZE_Z - 2) * -1;
-        curIndex_z = curPos_z;
-        //currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);/////////////////////////////////////TODO: this
+            //printf(" 1 Outside game area! z\n");
+            curPos_z = (MAP_SIZE_Z - 2) * -1;
+            curIndex_z = curPos_z;
+            currentPiece = WalkablePiece(curIndex_x, curIndex_y, curIndex_z);/////////////////////////////////////TODO: this
+            //printf(" 2 Outside game area! z\n");
       }
 
 
@@ -892,6 +895,7 @@ int main(int argc, char** argv)
 
         for(i = 0; i < MAX_PROJECTILES; i++){
             createMob(i, i, 5.0, 1.0, 0.0);
+            hideMob(i);
             projectiles[i].mobID = i;
         }
 
