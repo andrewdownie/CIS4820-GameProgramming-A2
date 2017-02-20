@@ -546,7 +546,7 @@ void draw2D() {
             if(world[x][1][z] == OUTER_WALL_COLOUR){
                 set2Dcolour(orange);
             }
-            else if(world[x][1][z] == INNER_WALL_COLOUR){
+            else if(world[x][1][z] == INNER_WALL_COLOUR || world[x][2][z] == INNER_WALL_COLOUR){
                 set2Dcolour(green);
             }
             else if(world[x][1][z] == PILLAR_COLOUR){
