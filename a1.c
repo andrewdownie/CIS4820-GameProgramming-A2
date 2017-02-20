@@ -737,7 +737,10 @@ void update() {
                 if(world[intX][intY][intZ] != EMPTY_PIECE){
                     projectiles[i].enabled = 0;
                     hideMob(projectiles[i].mobID);
+                    if(world[intX][intY][intZ] == INNER_WALL_COLOUR){
+
                     world[intX][intY][intZ] = 0;
+                    }
                 }
                }
 
@@ -866,7 +869,7 @@ int main(int argc, char** argv)
         ///
         /// Setup some cubes to climb up for testing
         ///
-        world[3][1][2] = 5;
+       /* world[3][1][2] = 5;
 
         world[2][1][2] = 5;
         world[2][2][2] = 5;
@@ -884,7 +887,7 @@ int main(int argc, char** argv)
         world[3][2][4] = 5;
         world[3][3][4] = 5;
         world[3][4][4] = 5;
-        world[3][5][4] = 5;
+        world[3][5][4] = 5;*/
 
 
         for(i = 0; i < MAX_PROJECTILES; i++){
